@@ -7,23 +7,31 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4B0283AA21A72B4C002AF00E /* CustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B0283A921A72B4C002AF00E /* CustomCell.swift */; };
 		4B2097542190DC0000F675FE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B2097532190DC0000F675FE /* AppDelegate.swift */; };
-		4B2097562190DC0000F675FE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B2097552190DC0000F675FE /* ViewController.swift */; };
 		4B2097592190DC0000F675FE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4B2097572190DC0000F675FE /* Main.storyboard */; };
 		4B20975C2190DC0000F675FE /* Race_Calc.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4B20975A2190DC0000F675FE /* Race_Calc.xcdatamodeld */; };
 		4B20975E2190DC0200F675FE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4B20975D2190DC0200F675FE /* Assets.xcassets */; };
 		4B2097612190DC0200F675FE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4B20975F2190DC0200F675FE /* LaunchScreen.storyboard */; };
+		4B2097692190DC8900F675FE /* RaceSelectorTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B2097682190DC8900F675FE /* RaceSelectorTableViewController.swift */; };
+		4B20976B2190DCAA00F675FE /* RaceData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B20976A2190DCAA00F675FE /* RaceData.swift */; };
+		4B20976D2190E41400F675FE /* CalculatorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B20976C2190E41400F675FE /* CalculatorViewController.swift */; };
+		4B80803E21A1F90F00B793A1 /* SplitsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B80803D21A1F90F00B793A1 /* SplitsTableViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4B0283A921A72B4C002AF00E /* CustomCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CustomCell.swift; path = ../CustomCell.swift; sourceTree = "<group>"; };
 		4B2097502190DC0000F675FE /* Race Calc.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Race Calc.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B2097532190DC0000F675FE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		4B2097552190DC0000F675FE /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		4B2097582190DC0000F675FE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		4B20975B2190DC0000F675FE /* Race_Calc.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Race_Calc.xcdatamodel; sourceTree = "<group>"; };
 		4B20975D2190DC0200F675FE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4B2097602190DC0200F675FE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4B2097622190DC0200F675FE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4B2097682190DC8900F675FE /* RaceSelectorTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RaceSelectorTableViewController.swift; sourceTree = "<group>"; };
+		4B20976A2190DCAA00F675FE /* RaceData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RaceData.swift; sourceTree = "<group>"; };
+		4B20976C2190E41400F675FE /* CalculatorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorViewController.swift; sourceTree = "<group>"; };
+		4B80803D21A1F90F00B793A1 /* SplitsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitsTableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,7 +65,11 @@
 			isa = PBXGroup;
 			children = (
 				4B2097532190DC0000F675FE /* AppDelegate.swift */,
-				4B2097552190DC0000F675FE /* ViewController.swift */,
+				4B20976A2190DCAA00F675FE /* RaceData.swift */,
+				4B2097682190DC8900F675FE /* RaceSelectorTableViewController.swift */,
+				4B20976C2190E41400F675FE /* CalculatorViewController.swift */,
+				4B80803D21A1F90F00B793A1 /* SplitsTableViewController.swift */,
+				4B0283A921A72B4C002AF00E /* CustomCell.swift */,
 				4B2097572190DC0000F675FE /* Main.storyboard */,
 				4B20975D2190DC0200F675FE /* Assets.xcassets */,
 				4B20975F2190DC0200F675FE /* LaunchScreen.storyboard */,
@@ -138,9 +150,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4B20976D2190E41400F675FE /* CalculatorViewController.swift in Sources */,
 				4B20975C2190DC0000F675FE /* Race_Calc.xcdatamodeld in Sources */,
-				4B2097562190DC0000F675FE /* ViewController.swift in Sources */,
+				4B80803E21A1F90F00B793A1 /* SplitsTableViewController.swift in Sources */,
 				4B2097542190DC0000F675FE /* AppDelegate.swift in Sources */,
+				4B20976B2190DCAA00F675FE /* RaceData.swift in Sources */,
+				4B0283AA21A72B4C002AF00E /* CustomCell.swift in Sources */,
+				4B2097692190DC8900F675FE /* RaceSelectorTableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
