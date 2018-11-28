@@ -24,21 +24,6 @@ extension UIViewController {
 // Custom colour for UI
 extension UIColor {
     class func getCustomRedColor() -> UIColor{
-        return UIColor(red: 234.0/255.0, green: 46.0/255.0, blue: 73.0/255.0, alpha: 1.0)
-    }
-}
-
-extension UIButton {
-    func selectedButton(title:String, iconName: String) {
-        self.setTitle(title, for: .normal)
-        self.setTitleColor(UIColor.getCustomRedColor(), for: .normal)
-        self.setImage(UIImage(named: iconName), for: .normal)
-//        let imageWidth = self.imageView!.frame.width
-//        let textWidth = (title as NSString).size(withAttributes:[NSAttributedString.Key.font:self.titleLabel!.font!]).width
-////        let width = textWidth + imageWidth + 24
-////        
-////        //24 - the sum of your insets from left and right
-//////        widthConstraints.constant = width
-//////        self.layoutIfNeeded()
+        return UIColor(red: 234.0/255.0, green: 46.0/255.0, blue: 73.0/255.0, alpha: 1.0) //#EE5253
     }
 }
