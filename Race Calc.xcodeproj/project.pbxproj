@@ -17,6 +17,7 @@
 		4B20976B2190DCAA00F675FE /* RaceData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B20976A2190DCAA00F675FE /* RaceData.swift */; };
 		4B20976D2190E41400F675FE /* CalculatorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B20976C2190E41400F675FE /* CalculatorViewController.swift */; };
 		4B80803E21A1F90F00B793A1 /* SplitsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B80803D21A1F90F00B793A1 /* SplitsTableViewController.swift */; };
+		4BFFD99321AE24BA00DA8D74 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BFFD99221AE24BA00DA8D74 /* Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		4B20976A2190DCAA00F675FE /* RaceData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RaceData.swift; sourceTree = "<group>"; };
 		4B20976C2190E41400F675FE /* CalculatorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorViewController.swift; sourceTree = "<group>"; };
 		4B80803D21A1F90F00B793A1 /* SplitsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitsTableViewController.swift; sourceTree = "<group>"; };
+		4BFFD99221AE24BA00DA8D74 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 			children = (
 				4B2097532190DC0000F675FE /* AppDelegate.swift */,
 				4B20976A2190DCAA00F675FE /* RaceData.swift */,
+				4BFFD99221AE24BA00DA8D74 /* Extensions.swift */,
 				4B2097682190DC8900F675FE /* RaceSelectorTableViewController.swift */,
 				4B20976C2190E41400F675FE /* CalculatorViewController.swift */,
 				4B80803D21A1F90F00B793A1 /* SplitsTableViewController.swift */,
@@ -153,6 +156,7 @@
 				4B20976D2190E41400F675FE /* CalculatorViewController.swift in Sources */,
 				4B20975C2190DC0000F675FE /* Race_Calc.xcdatamodeld in Sources */,
 				4B80803E21A1F90F00B793A1 /* SplitsTableViewController.swift in Sources */,
+				4BFFD99321AE24BA00DA8D74 /* Extensions.swift in Sources */,
 				4B2097542190DC0000F675FE /* AppDelegate.swift in Sources */,
 				4B20976B2190DCAA00F675FE /* RaceData.swift in Sources */,
 				4B0283AA21A72B4C002AF00E /* CustomCell.swift in Sources */,

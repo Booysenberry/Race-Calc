@@ -13,3 +13,7 @@ class RaceType {
     var distance = 0.0
 }
 
+
+
+
+
