@@ -21,6 +21,7 @@ class CalculatorViewController: UIViewController {
     var selectedRaceDistance = RaceType()
     var racePace = 0.0
     
+    @IBOutlet weak var calculateButton: UIButton!
     @IBOutlet weak var splitsButton: UIButton!
     @IBOutlet weak var kilometerInput: UITextField!
     @IBOutlet weak var meterInput: UITextField!
