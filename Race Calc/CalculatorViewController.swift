@@ -10,6 +10,7 @@ import UIKit
 
 class CalculatorViewController: UIViewController {
     
+    let customColour = UIColor.getCustomRedColor()
     var raceInfo = RaceType()
     var totalTime = 0.0
     var hours = 0.0
@@ -33,7 +34,11 @@ class CalculatorViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         
+        // Set title
         title = raceInfo.title
+        
+        // Segmented control colour
+        measureControl.tintColor = customColour
         
         // Set previous user measure preference
         let defaults = UserDefaults.standard
@@ -49,6 +54,7 @@ class CalculatorViewController: UIViewController {
         prepopulateDistances()
         
         self.hideKeyboardWhenTappedAround()
+        
     }
     
     // Allow user to change between metric and imperial measurements
@@ -63,13 +69,10 @@ class CalculatorViewController: UIViewController {
             break
         }
         prepopulateDistances()
-        
-        if racePace != 0 {
-            convertTime()
-            calculateTime()
-            convertDistance()
-            displayPace()
-        }
+        convertTime()
+        calculateTime()
+        convertDistance()
+        displayPace()
     }
     
     // Calculate button tapped
@@ -175,7 +178,6 @@ class CalculatorViewController: UIViewController {
                 paceCalculation.text = convertToTimeString(seconds: pace)! + " / mile"
             }
         } else {
-            paceCalculation.textColor = .red
             paceCalculation.text = "^ Enter finish time above ^"
         }
     }
@@ -222,20 +224,6 @@ class CalculatorViewController: UIViewController {
         return formattedDuration
     }
 }
-
-// Extension to hide keyboard when user taps around
-extension UIViewController {
-    func hideKeyboardWhenTappedAround() {
-        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tap.cancelsTouchesInView = false
-        view.addGestureRecognizer(tap)
-    }
-    @objc func dismissKeyboard() {
-        view.endEditing(true)
-    }
-}
-
-
 
 
 
