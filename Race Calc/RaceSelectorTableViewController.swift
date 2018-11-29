@@ -27,8 +27,10 @@ class RaceSelectorTableViewController: UITableViewController {
         race3.title = "10K"
         let race4 = RaceType()
         race4.title = "5K"
+        let race5 = RaceType()
+        race5.title = "Custom"
         
-        races = [race1,race2,race3,race4]
+        races = [race1,race2,race3,race4,race5]
         
     }
     

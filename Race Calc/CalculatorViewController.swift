@@ -20,6 +20,7 @@ class CalculatorViewController: UIViewController {
     var metricMeasure = true
     var selectedRaceDistance = RaceType()
     var racePace = 0.0
+    var customDistance = RaceType()
     
     @IBOutlet weak var calculateButton: UIButton!
     @IBOutlet weak var splitsButton: UIButton!
@@ -81,7 +82,11 @@ class CalculatorViewController: UIViewController {
         convertTime()
         calculateTime()
         convertDistance()
-        displayPace()
+        if totalTime != 0.0 {
+            displayPace()
+        } else {
+            paceCalculation.text = "Enter time above ^"
+        }
     }
     
     // Prepopulate distances based on user preference
@@ -171,17 +176,16 @@ class CalculatorViewController: UIViewController {
     // Calculate and display pace to user
     func displayPace() {
         let pace = (totalTime / totalDistance)
-        if pace != 0 {
-            racePace = pace
+        racePace = pace
+        if totalTime != 0.0 {
             if metricMeasure {
                 paceCalculation.text = convertToTimeString(seconds: pace)! + " / km"
             } else {
                 paceCalculation.text = convertToTimeString(seconds: pace)! + " / mile"
             }
-        } else {
-            paceCalculation.text = "^ Enter finish time above ^"
         }
     }
+    
     
     // Save user preferences to UserDefaults when back button is pressed
     override func viewWillDisappear(_ animated: Bool) {
@@ -206,7 +210,7 @@ class CalculatorViewController: UIViewController {
         if segue.destination is SplitsTableViewController {
             let splitsVC = segue.destination as? SplitsTableViewController
             // Distance data
-            splitsVC?.distance = selectedRaceDistance
+            splitsVC?.distance = totalDistance
             // Pace data
             splitsVC?.pace = racePace
             // Metric or Imperial data

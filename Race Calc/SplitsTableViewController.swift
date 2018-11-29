@@ -14,7 +14,7 @@ class SplitsTableViewController: UITableViewController {
     var markers = [Double]()
     var splits = [Double]()
     var pace = 0.0
-    var distance = RaceType()
+    var distance = 0.0
     var metricMeasure = true
     
     override func viewDidLoad() {
@@ -54,13 +54,13 @@ class SplitsTableViewController: UITableViewController {
     // Calculate distance markers
     func divideDistanceIntoSplits()  {
         var distanceMarkers = 0.0
-        while distanceMarkers <= distance.distance - 1 {
+        while distanceMarkers <= distance - 1 {
             markers.append(distanceMarkers + 1)
             distanceMarkers += 1
         }
-        let remainingDistance = distance.distance.remainder(dividingBy: 1)
+        let remainingDistance = distance.remainder(dividingBy: 1)
         if remainingDistance != 0 {
-            markers.append(distance.distance.rounded() + remainingDistance)
+            markers.append(distance.rounded() + remainingDistance)
         } else {
         }
         
