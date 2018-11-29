@@ -8,7 +8,7 @@
 
 import UIKit
 
-class CalculatorViewController: UIViewController {
+class CalculatorViewController: UIViewController, UITextFieldDelegate {
     
     let customColour = UIColor.getCustomRedColor()
     var raceInfo = RaceType()
@@ -38,6 +38,11 @@ class CalculatorViewController: UIViewController {
         
         // Set title
         title = raceInfo.title
+        
+        meterInput.delegate = self
+        finishHour.delegate = self
+        finishMinute.delegate = self
+        finishSecond.delegate = self
         
         // Segmented control colour
         measureControl.tintColor = customColour
@@ -227,6 +232,14 @@ class CalculatorViewController: UIViewController {
         formatter.zeroFormattingBehavior = [ .pad ]
         let formattedDuration = formatter.string(from: seconds)
         return formattedDuration
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let maxLength = 2
+        let currentString: NSString = textField.text! as NSString
+        let newString: NSString =
+            currentString.replacingCharacters(in: range, with: string) as NSString
+        return newString.length <= maxLength
     }
 }
 
