@@ -1,12 +1,21 @@
 # RaceCalc
+iOS (Swift) app to help runners calculate their pace, projected finish time and race day splits. 
 
-iPhone app to help runners calculate their pace, projected finish time and race day splits. 
+### 💡Purpose
+This was my first iOS app and I built it to familiarise myself with Swift's libraries.
 
-## Purpose
-This is my first iOS app and I built it to familiarise myself with Swift's libraries. 
-
-## Built using:
+### 🛠 Built using:
 * Swift 4.2
 
-## License
+### ✅ Instructions:
+
+Open Terminal 
+
+Run `git clone https://github.com/Booysenberry/RaceCalc.git`
+
+Open `racecalc.workspace`
+
+Build and run
+
+### 🎁 License  
 [MIT](https://choosealicense.com/licenses/mit/)
