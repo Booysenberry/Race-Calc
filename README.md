@@ -13,7 +13,7 @@ Open Terminal
 
 Run `git clone https://github.com/Booysenberry/RaceCalc.git`
 
-Open `racecalc.workspace`
+Open `racecalc.xcodeproj`
 
 Build and run
 
