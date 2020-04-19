@@ -19,8 +19,10 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
     var totalDistance = 0.0
     var metricMeasure = true
     var selectedRaceDistance = RaceType()
-    var racePace = 0.0
+    var racePace: Float = 0.0
     var customDistance = RaceType()
+    
+    
     
     @IBOutlet weak var calculateButton: UIButton!
     @IBOutlet weak var splitsButton: UIButton!
@@ -32,37 +34,130 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var paceCalculation: UILabel!
     @IBOutlet weak var kmsOrMiles: UILabel!
     @IBOutlet weak var measureControl: UISegmentedControl!
+    @IBOutlet weak var distanceLabel: UILabel!
+    @IBOutlet weak var timeLabel: UILabel!
+    @IBOutlet weak var paceLabel: UILabel!
+    @IBOutlet weak var timeSlider: UISlider!
+    @IBOutlet weak var paceSlider: UISlider!
+    @IBOutlet weak var distanceSelector: UISegmentedControl!
+    
+    let measurementFormatter = MeasurementFormatter()
+    let numberFormatter = NumberFormatter()
+    let defaults = UserDefaults.standard
+    let locale = Locale.current
     
     
-    override func viewWillAppear(_ animated: Bool) {
+    override func viewDidLoad() {
         
         // Set title
-        title = raceInfo.title
+        title = "Race Calculator"
         
-        meterInput.delegate = self
-        finishHour.delegate = self
-        finishMinute.delegate = self
-        finishSecond.delegate = self
+        metricMeasure = locale.usesMetricSystem
         
         // Segmented control colour
         measureControl.tintColor = customColour
         
-        // Set previous user measure preference
-        let defaults = UserDefaults.standard
-        let metricOrImperialPref = defaults.bool(forKey: "metricOrImperial")
-        if metricOrImperialPref {
-            metricMeasure = true
-            measureControl.selectedSegmentIndex = 0
-        } else {
-            metricMeasure = false
-            measureControl.selectedSegmentIndex = 1
+        switch distanceSelector.selectedSegmentIndex {
+        case 0:
+            raceInfo.distance = 5000
+            timeSlider.minimumValue = 900
+            timeSlider.maximumValue = 3600
+        case 1:
+            raceInfo.distance = 10000
+            timeSlider.minimumValue = 1800
+            timeSlider.maximumValue = 7200
+        case 2:
+            raceInfo.distance = 21100
+            timeSlider.minimumValue = 3600
+            timeSlider.maximumValue = 14400
+        case 3:
+            raceInfo.distance = 42200
+            timeSlider.minimumValue = 7200
+            timeSlider.maximumValue = 30390
+        default:
+            break
         }
-        // Prepopulate distances based on metric/imperial preference
-        prepopulateDistances()
+        
+        setValues()
         
         self.hideKeyboardWhenTappedAround()
-        
     }
+    
+    // Set distance and measurement units based on user locale
+    func setValues() {
+        
+        let distance = Measurement(value: Double(raceInfo.distance), unit: UnitLength.meters)
+        
+        switch metricMeasure {
+        case true:
+            measureControl.selectedSegmentIndex = 0
+            measurementFormatter.locale = Locale(identifier: "EN_NZ")
+            paceLabel.text = "\(paceString(time: TimeInterval(paceSlider.value))) /km"
+            distanceLabel.text = measurementFormatter.string(from: distance)
+            
+        default:
+            measureControl.selectedSegmentIndex = 1
+            paceLabel.text = "\(paceString(time: TimeInterval(paceSlider.value))) /mile"
+            measurementFormatter.locale = Locale(identifier: "EN_US")
+            numberFormatter.maximumFractionDigits = 1
+            measurementFormatter.numberFormatter = numberFormatter
+            distanceLabel.text = measurementFormatter.string(from: distance)
+        }
+        timeLabel.text = "\(timeString(time: TimeInterval(timeSlider.value)))"
+    }
+    
+    
+    // Format time string
+    func timeString(time: TimeInterval) -> String {
+        
+        let hour = Int(time) / 3600
+        let minute = Int(time) / 60 % 60
+        let second = Int(time) % 60
+        
+        // return formated string
+        return String(format: "%02i:%02i:%02i", hour, minute, second)
+    }
+    
+    // Format pace string
+    func paceString(time: TimeInterval) -> String {
+        
+        let minute = Int(time) / 60 % 60
+        let second = Int(time) % 60
+        
+        // return formated string
+        return String(format: "%02i:%02i", minute, second)
+    }
+    
+    
+    
+    @IBAction func distanceChanged(_ sender: Any) {
+        
+        switch distanceSelector.selectedSegmentIndex {
+        case 0:
+            raceInfo.distance = 5000
+            timeSlider.minimumValue = 900
+            timeSlider.maximumValue = 3600
+            
+        case 1:
+            raceInfo.distance = 10000
+            timeSlider.minimumValue = 1800
+            timeSlider.maximumValue = 7200
+        case 2:
+            raceInfo.distance = 21100
+            timeSlider.minimumValue = 3600
+            timeSlider.maximumValue = 14400
+        case 3:
+            raceInfo.distance = 42200
+            timeSlider.minimumValue = 7200
+            timeSlider.maximumValue = 30390
+        default:
+            break
+        }
+        setValues()
+        paceSliderChanged(paceSlider)
+    }
+    
+    
     
     // Allow user to change between metric and imperial measurements
     @IBAction func measureChanged(_ sender: Any) {
@@ -75,138 +170,37 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
         default:
             break
         }
-        prepopulateDistances()
-        convertTime()
-        calculateTime()
-        convertDistance()
-        displayPace()
+//        setValues()
+        paceSliderChanged(paceSlider)
     }
     
-    // Calculate button tapped
-    @IBAction func calculateButton(_ sender: Any) {
-        convertTime()
-        calculateTime()
-        convertDistance()
-        if totalTime != 0.0 {
-            displayPace()
-        } else {
-            paceCalculation.text = "Enter time above ^"
-        }
-    }
-    
-    // Prepopulate distances based on user preference
-    func prepopulateDistances() {
+    @IBAction func timeSliderChanged(_ sender: UISlider) {
+        
+        timeLabel.text = "\(timeString(time: TimeInterval(sender.value)))"
+        let time = sender.value / (raceInfo.distance / 1000)
+        paceSlider.value = time
+        
         if metricMeasure {
-            
-            switch raceInfo.title {
-            case "Marathon":
-                selectedRaceDistance.distance = 42.2
-                kilometerInput.text = "42"
-                meterInput.text = "2"
-            case "Half Marathon":
-                kilometerInput.text = "21"
-                meterInput.text = "1"
-                selectedRaceDistance.distance = 21.1
-            case "10K":
-                kilometerInput.text = "10"
-                meterInput.text = "0"
-                selectedRaceDistance.distance = 10
-            case "5K":
-                kilometerInput.text = "5"
-                meterInput.text = "0"
-                selectedRaceDistance.distance = 5
-            default:
-                kilometerInput.text = "0"
-                meterInput.text = "0"
-                selectedRaceDistance.distance = 0
-            }
-            kmsOrMiles.text = "Kms"
-            
+            paceLabel.text = "\(paceString(time: TimeInterval(sender.value))) /km"
         } else {
-            switch raceInfo.title {
-            case "Marathon":
-                kilometerInput.text = "26"
-                meterInput.text = "2"
-                selectedRaceDistance.distance = 26.2
-            case "Half Marathon":
-                kilometerInput.text = "13"
-                meterInput.text = "1"
-                selectedRaceDistance.distance = 13.1
-            case "10K":
-                kilometerInput.text = "6"
-                meterInput.text = "0"
-                selectedRaceDistance.distance = 6
-            case "5K":
-                kilometerInput.text = "3"
-                meterInput.text = "0"
-                selectedRaceDistance.distance = 3
-            default:
-                kilometerInput.text = "0"
-                meterInput.text = "0"
-                selectedRaceDistance.distance = 0
-            }
-            kmsOrMiles.text = "Miles"
+            paceLabel.text = "\(paceString(time: TimeInterval(sender.value))) /mile"
         }
     }
     
-    // Convert km/miles and mins/feet to single number
-    func convertDistance() {
-        if let kms = Double(kilometerInput.text!) {
-            if let ms = Double(meterInput.text!) {
-                let convertedDistance = kms + (ms / 10)
-                totalDistance = convertedDistance
-            }
+    @IBAction func paceSliderChanged(_ sender: UISlider) {
+        
+        if metricMeasure {
+            let time = sender.value.rounded(.down) * (raceInfo.distance / 1000)
+            timeLabel.text = "\(timeString(time: TimeInterval(time)))"
+            timeSlider.value = time
+            paceLabel.text = "\(paceString(time: TimeInterval(sender.value))) /km"
+        } else {
+            let time = sender.value.rounded(.down) * (raceInfo.distance / 1609)
+            timeLabel.text = "\(timeString(time: TimeInterval(time)))"
+            timeSlider.value = time
+            paceLabel.text = "\(paceString(time: TimeInterval(sender.value))) /mile"
         }
-    }
-    
-    // Convert inputed time to seconds
-    func convertTime() {
-        if let hours1 = Double(finishHour.text!) {
-            hours = (hours1*60)*60
-        }
-        if let minutes1 = Double(finishMinute.text!) {
-            minutes = (minutes1 * 60)
-        }
-        if let seconds1 = Double(finishSecond.text!) {
-            seconds = seconds1
-        }
-    }
-    
-    // Calculate total time in seconds
-    func calculateTime () {
-        let convertedTime = hours + minutes + seconds
-        totalTime = convertedTime
-    }
-    
-    // Calculate and display pace to user
-    func displayPace() {
-        let pace = (totalTime / totalDistance)
-        racePace = pace
-        if totalTime != 0.0 {
-            if metricMeasure {
-                paceCalculation.text = convertToTimeString(seconds: pace)! + " / km"
-            } else {
-                paceCalculation.text = convertToTimeString(seconds: pace)! + " / mile"
-            }
-        }
-    }
-    
-    
-    // Save user preferences to UserDefaults when back button is pressed
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        if self.isMovingFromParent {
-            saveData()
-        }
-    }
-    
-    // Save to UserDefaults
-    func saveData() {
-        let defaults = UserDefaults.standard
-        defaults.set(metricMeasure, forKey: "metricOrImperial")
-        defaults.set(hours, forKey: "hours")
-        defaults.set(minutes, forKey: "minutes")
-        defaults.set(seconds, forKey: "seconds")
+        racePace = paceSlider.value
     }
     
     
@@ -217,7 +211,7 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
             // Distance data
             splitsVC?.distance = totalDistance
             // Pace data
-            splitsVC?.pace = racePace
+            splitsVC?.pace = Double(racePace)
             // Metric or Imperial data
             splitsVC?.metricMeasure = metricMeasure
             
@@ -228,8 +222,8 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
     func convertToTimeString (seconds: Double) -> String? {
         let formatter = DateComponentsFormatter()
         formatter.unitsStyle = .positional
-        formatter.allowedUnits = [ .minute, .second ]
-        formatter.zeroFormattingBehavior = [ .pad ]
+        formatter.allowedUnits = [.minute, .second]
+        formatter.zeroFormattingBehavior = .pad
         let formattedDuration = formatter.string(from: seconds)
         return formattedDuration
     }
