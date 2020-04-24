@@ -10,15 +10,17 @@ import UIKit
 
 class SplitsTableViewController: UITableViewController {
     
-    
-    var markers = [Double]()
-    var splits = [Double]()
-    var pace = 0.0
-    var distance = 0.0
+    var markers = [Float]()
+    var splits = [Float]()
+    var pace: Float = 0.0
+    var distance: Float = 0.0
     var metricMeasure = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Set title
+        title = "Your Splits"
         
         divideDistanceIntoSplits()
         calculateSplits()
@@ -37,24 +39,33 @@ class SplitsTableViewController: UITableViewController {
         let split = splits[indexPath.row]
         
         if metricMeasure == true {
-            let distance = Measurement(value: marker, unit: UnitLength.kilometers)
+            let distance = Measurement(value: Double(marker), unit: UnitLength.kilometers)
             let formattedDistance = measurementFormatter.string(from: distance)
             cell.distanceLabel.text = "\(formattedDistance)"
         } else {
-            let distance = Measurement(value: marker, unit: UnitLength.miles)
+            let distance = Measurement(value: Double(marker), unit: UnitLength.miles)
             let formattedDistance = measurementFormatter.string(from: distance)
             cell.distanceLabel.text = "\(formattedDistance)"
         }
         
-        cell.paceLabel.text = convertToTimeString(seconds: split)
+        cell.paceLabel.text = convertToTimeString(seconds: Double(split))
         
         return cell
     }
     
     // Calculate distance markers
     func divideDistanceIntoSplits()  {
-        var distanceMarkers = 0.0
-        while distanceMarkers <= distance - 1 {
+        
+        var distanceMarkers: Float = 0.0
+        var divider: Float = 1000
+        
+        if metricMeasure {
+            divider = 1000
+        } else {
+            divider = 1609
+        }
+        
+        while distanceMarkers <= (distance / divider) - 1 {
             markers.append(distanceMarkers + 1)
             distanceMarkers += 1
         }

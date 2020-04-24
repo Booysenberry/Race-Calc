@@ -10,7 +10,7 @@ import Foundation
 
 class RaceType {
     var title = ""
-    var distance = 0.0
+    var distance: Float = 0.0
 }
 
 
