@@ -57,9 +57,6 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
         timeSlider.minimumValue = timeValues.0 // seconds
         timeSlider.maximumValue = timeValues.1 // seconds
         
-        print(timeSlider.minimumValue)
-        print(timeSlider.maximumValue)
-        
         switch metricMeasure {
         case true:
             
@@ -138,6 +135,7 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
             break
         }
         setValues()
+        paceSliderChanged(paceSlider)
     }
     
     @IBAction func timeSliderChanged(_ sender: UISlider) {
@@ -174,16 +172,15 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
     
     // Send data to splits view
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        if segue.destination is SplitsTableViewController {
-//            let splitsVC = segue.destination as? SplitsTableViewController
-//            // Distance data
-//            splitsVC?.distance = totalDistance
-//            // Pace data
-//            splitsVC?.pace = Double(racePace)
-//            // Metric or Imperial data
-//            splitsVC?.metricMeasure = metricMeasure
-//            
-//        }
+        if segue.destination is SplitsTableViewController {
+            let splitsVC = segue.destination as? SplitsTableViewController
+            // Distance data
+            splitsVC?.distance = raceInfo.distance
+            // Pace data
+            splitsVC?.pace = paceSlider.value
+            // Metric or Imperial data
+            splitsVC?.metricMeasure = metricMeasure
+        }
     }
     
     // Format time string
