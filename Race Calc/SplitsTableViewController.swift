@@ -19,7 +19,8 @@ class SplitsTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        print(distance)
+        // Set title
+        title = "Your Splits"
         
         divideDistanceIntoSplits()
         calculateSplits()

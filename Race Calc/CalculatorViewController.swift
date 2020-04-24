@@ -28,7 +28,8 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
     let numberFormatter = NumberFormatter()
     let defaults = UserDefaults.standard
     let locale = Locale.current
-    
+    let fiveSecondIncrements: Float = 5
+    let thirtySecondIncrements: Float = 30
     
     override func viewDidLoad() {
         
@@ -37,12 +38,24 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
         // Set title
         title = "Race Calculator"
         
+        // Style sliders
+        for slider in [paceSlider, timeSlider] {
+            slider?.minimumTrackTintColor = UIColor.getCustomRedColor()
+            slider?.thumbTintColor = UIColor.getCustomRedColor()
+        }
+        
+        // Set unit preference
         metricMeasure = locale.usesMetricSystem
         
         // Segmented control colour
         measureControl.tintColor = customColour
         
         setValues()
+        
+        // Add long press gesture recogniser to distance label
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPress(sender:)))
+        distanceLabel.addGestureRecognizer(longPress)
+        distanceLabel.isUserInteractionEnabled = true
         
         self.hideKeyboardWhenTappedAround()
     }
@@ -51,6 +64,7 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
     func setValues() {
         
         let distance = Measurement(value: Double(raceInfo.distance), unit: UnitLength.meters)
+        distanceLabel.font = distanceLabel.font.withSize(25)
         
         let timeValues = calculateMinAndMaxTimes(slowestPace: 12, fastestPace: 3)
         
@@ -60,33 +74,50 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
         switch metricMeasure {
         case true:
             
-            // Metric format
-            measureControl.selectedSegmentIndex = 0
-            measurementFormatter.locale = Locale(identifier: "EN_NZ")
-            distanceLabel.text = measurementFormatter.string(from: distance)
-            
-            // Set min and max slider values
-            paceSlider.minimumValue = (3 * 60) // seconds
-            paceSlider.maximumValue = (12 * 60) // seconds
-            paceLabel.text = "\(paceString(time: TimeInterval(paceSlider.value))) /km"
+            if raceInfo.distance != 0 {
+                
+                // Metric format
+                measureControl.selectedSegmentIndex = 0
+                measurementFormatter.locale = Locale(identifier: "EN_NZ")
+                distanceLabel.text = measurementFormatter.string(from: distance)
+                
+                // Set min and max slider values
+                paceSlider.minimumValue = (3 * 60) // seconds
+                paceSlider.maximumValue = (12 * 60) // seconds
+                paceLabel.text = "\(paceString(time: TimeInterval(paceSlider.value))) /km"
+                
+            } else {
+                distanceLabel.text = "Long press here to enter distance"
+                distanceLabel.font = distanceLabel.font.withSize(17)
+            }
             
         default:
             
-            // Imperial format
-            measureControl.selectedSegmentIndex = 1
-            measurementFormatter.locale = Locale(identifier: "EN_US")
-            numberFormatter.maximumFractionDigits = 1
-            measurementFormatter.numberFormatter = numberFormatter
-            distanceLabel.text = measurementFormatter.string(from: distance)
-            
-            // Set min and max slider values
-            paceSlider.minimumValue = (4.8 * 60) // mins per mile pace
-            paceSlider.maximumValue = (20 * 60) // mins per mile pace
-            paceLabel.text = "\(paceString(time: TimeInterval(paceSlider.value))) /mile"
+            if raceInfo.distance != 0 {
+                
+                // Imperial format
+                measureControl.selectedSegmentIndex = 1
+                measurementFormatter.locale = Locale(identifier: "EN_US")
+                numberFormatter.maximumFractionDigits = 1
+                measurementFormatter.numberFormatter = numberFormatter
+                distanceLabel.text = measurementFormatter.string(from: distance)
+                
+                // Set min and max slider values
+                paceSlider.minimumValue = (4.8 * 60) // mins per mile pace
+                paceSlider.maximumValue = (20 * 60) // mins per mile pace
+                paceLabel.text = "\(paceString(time: TimeInterval(paceSlider.value))) /mile"
+                
+            } else {
+                distanceLabel.text = "Long press here to enter distance"
+                distanceLabel.font = distanceLabel.font.withSize(17)
+            }
         }
+        paceSliderChanged(paceSlider)
         timeLabel.text = "\(timeString(time: TimeInterval(timeSlider.value)))"
     }
     
+    
+    // Calculate min and max times and set time slider values
     func calculateMinAndMaxTimes(slowestPace: Float, fastestPace: Float) -> (Float, Float) {
         
         var minimumTime: Float = 0.0
@@ -117,6 +148,8 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
             raceInfo.distance = 21100
         case 3:
             raceInfo.distance = 42200
+        case 4:
+            raceInfo.distance = 0
         default:
             break
         }
@@ -140,6 +173,10 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
     
     @IBAction func timeSliderChanged(_ sender: UISlider) {
         
+        // Adjust time in 30 second increments
+        let roundedTime = round(timeSlider.value / thirtySecondIncrements) * thirtySecondIncrements
+        timeSlider.value = roundedTime
+        
         timeLabel.text = "\(timeString(time: TimeInterval(sender.value)))"
         
         if metricMeasure {
@@ -154,6 +191,10 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func paceSliderChanged(_ sender: UISlider) {
+        
+        // Adjust pace in 5 second increments
+        let roundedPace = round(paceSlider.value / fiveSecondIncrements) * fiveSecondIncrements
+        paceSlider.value = roundedPace
         
         if metricMeasure {
             let time = sender.value * (raceInfo.distance / 1000)
@@ -202,6 +243,43 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
         
         // return formated string
         return String(format: "%02i:%02i", minute, second)
+    }
+    
+    // Allows the user to change distance if long pressing on distance label
+    @objc func longPress(sender: UILongPressGestureRecognizer) {
+        
+        let alert = UIAlertController(title: "Change Distance", message: nil, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        
+        alert.addTextField(configurationHandler: { textField in
+            textField.autocapitalizationType = .words
+            textField.keyboardType = .decimalPad
+            
+            
+            if self.metricMeasure {
+                textField.placeholder = "kilometers"
+            } else {
+                textField.placeholder = "miles"
+            }
+        })
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+            
+            if let distanceString = alert.textFields?.first?.text {
+                if let convertedDistance = Float(distanceString) {
+                    if distanceString != "" {
+                        
+                        if self.metricMeasure {
+                            self.raceInfo.distance = (convertedDistance * 1000)
+                        } else {
+                        self.raceInfo.distance = (convertedDistance * 1609)
+                        }
+                        self.setValues()
+                    }
+                }
+            }
+        }))
+        self.present(alert, animated: true)
     }
 }
 
