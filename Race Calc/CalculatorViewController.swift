@@ -17,10 +17,11 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var measureControl: UISegmentedControl!
     @IBOutlet weak var distanceLabel: UILabel!
-    @IBOutlet weak var timeLabel: UILabel!
-    @IBOutlet weak var paceLabel: UILabel!
-    @IBOutlet weak var timeSlider: UISlider!
-    @IBOutlet weak var paceSlider: UISlider!
+    @IBOutlet weak var topLabel: UILabel!
+    @IBOutlet weak var topImage: UIImageView!
+    @IBOutlet weak var bottomLabel: UILabel!
+    @IBOutlet weak var bottomImage: UIImageView!
+    @IBOutlet weak var uiSlider: UISlider!
     @IBOutlet weak var distanceSelector: UISegmentedControl!
     
     let customColour = UIColor.getCustomRedColor()
@@ -30,6 +31,8 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
     let locale = Locale.current
     let fiveSecondIncrements: Float = 5
     let thirtySecondIncrements: Float = 30
+    var calculateTime = true
+    var calculatePace = false
     
     override func viewDidLoad() {
         
@@ -38,19 +41,25 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
         // Set title
         title = "Race Calculator"
         
-        // Style sliders
-        for slider in [paceSlider, timeSlider] {
-            slider?.minimumTrackTintColor = UIColor.getCustomRedColor()
-            slider?.thumbTintColor = UIColor.getCustomRedColor()
-        }
-        
         // Set unit preference
         metricMeasure = locale.usesMetricSystem
+        
+        setPreferredUnits()
+        
+        switchBetweenTimeandPace()
+        
+        
+        
+        // Style slider
+        uiSlider.minimumTrackTintColor = UIColor.getCustomRedColor()
+        uiSlider.thumbTintColor = UIColor.getCustomRedColor()
+        
+        
         
         // Segmented control colour
         measureControl.tintColor = customColour
         
-        setValues()
+        //        setValues()
         
         // Add long press gesture recogniser to distance label
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPress(sender:)))
@@ -60,20 +69,70 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
         self.hideKeyboardWhenTappedAround()
     }
     
-    // Set distance and measurement units based on user locale
-    func setValues() {
+    func switchBetweenTimeandPace() {
+        if calculateTime {
+            setSliderToCalculateTime()
+        } else {
+            setSliderToCalculatePace()
+        }
+    }
+    
+    func setSliderToCalculateTime() {
+        
+        if metricMeasure {
+            
+            uiSlider.minimumValue = (3 * 60)
+            uiSlider.maximumValue = (12 * 60)
+            uiSlider.value = (uiSlider.minimumValue + uiSlider.maximumValue) / 2
+            
+            
+        } else {
+            uiSlider.minimumValue = (4.8 * 60)
+            uiSlider.maximumValue = (20 * 60)
+            uiSlider.value = (uiSlider.minimumValue + uiSlider.maximumValue) / 2
+        
+        }
+        
+        topLabel.text = "\(timeString(time: TimeInterval(uiSlider.value)))"
+        topImage.image = UIImage(named: "finish")
+        bottomImage.image = UIImage(named: "speed")
+        sliderChanged(uiSlider)
+        
+    }
+    
+    func setSliderToCalculatePace() {
+        
+        // Calculate min and max times based on distance and pace
+        let timeValues = calculateMinAndMaxTimes(slowestPace: 12, fastestPace: 3)
+        
+        // Set min and max slider values for time
+        uiSlider.minimumValue = timeValues.0 // seconds
+        uiSlider.maximumValue = timeValues.1 // seconds
+        
+        if metricMeasure {
+            
+            topLabel.text = "\(paceString(time: TimeInterval(uiSlider.value))) /km"
+            
+        } else {
+            topLabel.text = "\(paceString(time: TimeInterval(uiSlider.value))) /mile"
+        }
+        
+        topImage.image = UIImage(named: "speed")
+        bottomImage.image = UIImage(named: "finish")
+        sliderChanged(uiSlider)
+        
+    }
+    
+    func setPreferredUnits() {
         
         let distance = Measurement(value: Double(raceInfo.distance), unit: UnitLength.meters)
         distanceLabel.font = distanceLabel.font.withSize(25)
         
-        let timeValues = calculateMinAndMaxTimes(slowestPace: 12, fastestPace: 3)
-        
-        timeSlider.minimumValue = timeValues.0 // seconds
-        timeSlider.maximumValue = timeValues.1 // seconds
-        
         switch metricMeasure {
         case true:
             
+            let distance = Measurement(value: Double(raceInfo.distance), unit: UnitLength.meters)
+            distanceLabel.font = distanceLabel.font.withSize(25)
             if raceInfo.distance != 0 {
                 
                 // Metric format
@@ -81,16 +140,10 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
                 measurementFormatter.locale = Locale(identifier: "EN_NZ")
                 distanceLabel.text = measurementFormatter.string(from: distance)
                 
-                // Set min and max slider values
-                paceSlider.minimumValue = (3 * 60) // seconds
-                paceSlider.maximumValue = (12 * 60) // seconds
-                paceLabel.text = "\(paceString(time: TimeInterval(paceSlider.value))) /km"
-                
             } else {
                 distanceLabel.text = "Long press here to enter distance"
                 distanceLabel.font = distanceLabel.font.withSize(17)
             }
-            
         default:
             
             if raceInfo.distance != 0 {
@@ -101,21 +154,27 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
                 numberFormatter.maximumFractionDigits = 1
                 measurementFormatter.numberFormatter = numberFormatter
                 distanceLabel.text = measurementFormatter.string(from: distance)
-                
-                // Set min and max slider values
-                paceSlider.minimumValue = (4.8 * 60) // mins per mile pace
-                paceSlider.maximumValue = (20 * 60) // mins per mile pace
-                paceLabel.text = "\(paceString(time: TimeInterval(paceSlider.value))) /mile"
-                
             } else {
                 distanceLabel.text = "Long press here to enter distance"
                 distanceLabel.font = distanceLabel.font.withSize(17)
             }
         }
-        paceSliderChanged(paceSlider)
-        timeLabel.text = "\(timeString(time: TimeInterval(timeSlider.value)))"
     }
     
+    @IBAction func swapFunctions(_ sender: Any) {
+        
+        if calculateTime {
+            print("Switched to calculating pace")
+            calculatePace = true
+            calculateTime = false
+            setSliderToCalculatePace()
+        } else {
+            print("Switched to calculating time")
+            calculatePace = false
+            calculateTime = true
+            setSliderToCalculateTime()
+        }
+    }
     
     // Calculate min and max times and set time slider values
     func calculateMinAndMaxTimes(slowestPace: Float, fastestPace: Float) -> (Float, Float) {
@@ -153,8 +212,8 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
         default:
             break
         }
-        setValues()
-        paceSliderChanged(paceSlider)
+        setPreferredUnits()
+        sliderChanged(uiSlider)
     }
     
     // Allow user to change between metric and imperial measurements
@@ -167,47 +226,56 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
         default:
             break
         }
-        setValues()
-        paceSliderChanged(paceSlider)
+        setPreferredUnits()
+        switchBetweenTimeandPace()
+        sliderChanged(uiSlider)
     }
     
-    @IBAction func timeSliderChanged(_ sender: UISlider) {
+    @IBAction func sliderChanged(_ sender: UISlider) {
         
-        // Adjust time in 30 second increments
-        let roundedTime = round(timeSlider.value / thirtySecondIncrements) * thirtySecondIncrements
-        timeSlider.value = roundedTime
-        
-        timeLabel.text = "\(timeString(time: TimeInterval(sender.value)))"
-        
-        if metricMeasure {
-            let speed = sender.value / (raceInfo.distance / 1000)
-            paceSlider.value = speed
-            paceLabel.text = "\(paceString(time: TimeInterval(speed))) /km"
-        } else {
-            let speed = sender.value / (raceInfo.distance / 1609)
-            paceSlider.value = speed
-            paceLabel.text = "\(paceString(time: TimeInterval(speed))) /mile"
-        }
-    }
-    
-    @IBAction func paceSliderChanged(_ sender: UISlider) {
-        
-        // Adjust pace in 5 second increments
-        let roundedPace = round(paceSlider.value / fiveSecondIncrements) * fiveSecondIncrements
-        paceSlider.value = roundedPace
-        
-        if metricMeasure {
+        if calculateTime {
+            
+            // Calculate time
+            
+            // Adjust pace in 5 second increments
+            let roundedPace = round(uiSlider.value / fiveSecondIncrements) * fiveSecondIncrements
+            uiSlider.value = roundedPace
+            
+            if metricMeasure {
+                bottomLabel.text = "\(paceString(time: TimeInterval(sender.value))) /km"
+            } else {
+                bottomLabel.text = "\(paceString(time: TimeInterval(sender.value))) /mile"
+            }
             let time = sender.value * (raceInfo.distance / 1000)
-            timeLabel.text = "\(timeString(time: TimeInterval(time)))"
-            timeSlider.value = sender.value * (raceInfo.distance / 1000)
-            paceLabel.text = "\(paceString(time: TimeInterval(sender.value))) /km"
+            topLabel.text = "\(timeString(time: TimeInterval(time)))"
+            
             
         } else {
             
-            let time = sender.value * (raceInfo.distance / 1609)
-            timeLabel.text = "\(timeString(time: TimeInterval(time)))"
-            timeSlider.value = sender.value * (raceInfo.distance / 1609)
-            paceLabel.text = "\(paceString(time: TimeInterval(sender.value))) /mile"
+            // Calculate pace
+            
+            // Adjust time in 30 second increments
+            let roundedTime = round(uiSlider.value / thirtySecondIncrements) * thirtySecondIncrements
+            uiSlider.value = roundedTime
+            
+            bottomLabel.text = "\(timeString(time: TimeInterval(sender.value)))"
+            
+            if metricMeasure {
+                
+                // FUNCTION NEEDS FIXING
+                
+                let time = raceInfo.distance / (raceInfo.distance / sender.value)
+                uiSlider.value = time
+                
+                print(time)
+                topLabel.text = "\(paceString(time: TimeInterval(speed))) /km"
+            } else {
+                let speed = sender.value / (raceInfo.distance / 1609)
+                uiSlider.value = speed
+                
+                print(speed)
+                topLabel.text = "\(paceString(time: TimeInterval(speed))) /mile"
+            }
         }
     }
     
@@ -218,7 +286,7 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
             // Distance data
             splitsVC?.distance = raceInfo.distance
             // Pace data
-            splitsVC?.pace = paceSlider.value
+            //            splitsVC?.pace = paceSlider.value
             // Metric or Imperial data
             splitsVC?.metricMeasure = metricMeasure
         }
@@ -272,9 +340,9 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
                         if self.metricMeasure {
                             self.raceInfo.distance = (convertedDistance * 1000)
                         } else {
-                        self.raceInfo.distance = (convertedDistance * 1609)
+                            self.raceInfo.distance = (convertedDistance * 1609)
                         }
-                        self.setValues()
+                        //                        self.setValues()
                     }
                 }
             }
