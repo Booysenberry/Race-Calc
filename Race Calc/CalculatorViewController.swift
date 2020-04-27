@@ -203,8 +203,6 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
             raceInfo.distance = 21100
         case 3:
             raceInfo.distance = 42200
-        case 4:
-            raceInfo.distance = 0
         default:
             break
         }

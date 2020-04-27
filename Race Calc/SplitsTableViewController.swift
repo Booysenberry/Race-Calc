@@ -101,7 +101,7 @@ class SplitsTableViewController: UITableViewController {
         formatter.unitOptions = .providedUnit
         let numberFormatter = NumberFormatter()
         numberFormatter.minimumIntegerDigits = 1
-        numberFormatter.minimumFractionDigits = 1
+        numberFormatter.minimumFractionDigits = 0
         numberFormatter.maximumFractionDigits = 1
         formatter.numberFormatter = numberFormatter
         
