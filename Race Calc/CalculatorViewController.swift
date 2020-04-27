@@ -36,6 +36,9 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         
+        print(defaults.float(forKey: "pace"))
+        print(defaults.float(forKey: "time"))
+        
         raceInfo.distance = 5000
         
         // Set title
@@ -44,22 +47,16 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
         // Set unit preference
         metricMeasure = locale.usesMetricSystem
         
-        setPreferredUnits()
+        formatDistance()
         
-        switchBetweenTimeandPace()
-        
-        
+        switchBetweenTimeandPaceFunctions()
         
         // Style slider
         uiSlider.minimumTrackTintColor = UIColor.getCustomRedColor()
         uiSlider.thumbTintColor = UIColor.getCustomRedColor()
         
-        
-        
         // Segmented control colour
         measureControl.tintColor = customColour
-        
-        //        setValues()
         
         // Add long press gesture recogniser to distance label
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPress(sender:)))
@@ -69,7 +66,7 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
         self.hideKeyboardWhenTappedAround()
     }
     
-    func switchBetweenTimeandPace() {
+    func switchBetweenTimeandPaceFunctions() {
         if calculateTime {
             setSliderToCalculateTime()
         } else {
@@ -79,25 +76,22 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
     
     func setSliderToCalculateTime() {
         
+        // set pace min and max values
         if metricMeasure {
             
-            uiSlider.minimumValue = (3 * 60)
-            uiSlider.maximumValue = (12 * 60)
-            uiSlider.value = (uiSlider.minimumValue + uiSlider.maximumValue) / 2
-            
+            uiSlider.minimumValue = (3 * 60) // min/km
+            uiSlider.maximumValue = (12 * 60) // min/km
             
         } else {
-            uiSlider.minimumValue = (4.8 * 60)
-            uiSlider.maximumValue = (20 * 60)
-            uiSlider.value = (uiSlider.minimumValue + uiSlider.maximumValue) / 2
-        
+            uiSlider.minimumValue = (4.8 * 60) // min/mi
+            uiSlider.maximumValue = (20 * 60) // min/mi
+            
         }
         
         topLabel.text = "\(timeString(time: TimeInterval(uiSlider.value)))"
         topImage.image = UIImage(named: "finish")
         bottomImage.image = UIImage(named: "speed")
         sliderChanged(uiSlider)
-        
     }
     
     func setSliderToCalculatePace() {
@@ -111,10 +105,10 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
         
         if metricMeasure {
             
-            topLabel.text = "\(paceString(time: TimeInterval(uiSlider.value))) /km"
+            topLabel.text = "\(paceString(time: TimeInterval(uiSlider.value))) min/km"
             
         } else {
-            topLabel.text = "\(paceString(time: TimeInterval(uiSlider.value))) /mile"
+            topLabel.text = "\(paceString(time: TimeInterval(uiSlider.value))) min/mi"
         }
         
         topImage.image = UIImage(named: "speed")
@@ -123,16 +117,16 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
         
     }
     
-    func setPreferredUnits() {
+    func formatDistance() {
         
         let distance = Measurement(value: Double(raceInfo.distance), unit: UnitLength.meters)
-        distanceLabel.font = distanceLabel.font.withSize(25)
+        distanceLabel.font = distanceLabel.font.withSize(30)
         
         switch metricMeasure {
         case true:
             
             let distance = Measurement(value: Double(raceInfo.distance), unit: UnitLength.meters)
-            distanceLabel.font = distanceLabel.font.withSize(25)
+            
             if raceInfo.distance != 0 {
                 
                 // Metric format
@@ -159,17 +153,19 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
                 distanceLabel.font = distanceLabel.font.withSize(17)
             }
         }
+        switchBetweenTimeandPaceFunctions()
     }
     
     @IBAction func swapFunctions(_ sender: Any) {
         
         if calculateTime {
-            print("Switched to calculating pace")
+            defaults.set(uiSlider.value, forKey: "time")
             calculatePace = true
             calculateTime = false
             setSliderToCalculatePace()
-        } else {
-            print("Switched to calculating time")
+            
+        } else if calculatePace {
+            defaults.set(uiSlider.value, forKey: "pace")
             calculatePace = false
             calculateTime = true
             setSliderToCalculateTime()
@@ -212,7 +208,7 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
         default:
             break
         }
-        setPreferredUnits()
+        formatDistance()
         sliderChanged(uiSlider)
     }
     
@@ -226,8 +222,8 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
         default:
             break
         }
-        setPreferredUnits()
-        switchBetweenTimeandPace()
+        formatDistance()
+        switchBetweenTimeandPaceFunctions()
         sliderChanged(uiSlider)
     }
     
@@ -242,13 +238,14 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
             uiSlider.value = roundedPace
             
             if metricMeasure {
-                bottomLabel.text = "\(paceString(time: TimeInterval(sender.value))) /km"
+                bottomLabel.text = "\(paceString(time: TimeInterval(sender.value))) min/km"
+                let time = sender.value * (raceInfo.distance / 1000)
+                topLabel.text = "\(timeString(time: TimeInterval(time)))"
             } else {
-                bottomLabel.text = "\(paceString(time: TimeInterval(sender.value))) /mile"
+                bottomLabel.text = "\(paceString(time: TimeInterval(sender.value))) min/mi"
+                let time = sender.value * (raceInfo.distance / 1609)
+                topLabel.text = "\(timeString(time: TimeInterval(time)))"
             }
-            let time = sender.value * (raceInfo.distance / 1000)
-            topLabel.text = "\(timeString(time: TimeInterval(time)))"
-            
             
         } else {
             
@@ -261,23 +258,16 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
             bottomLabel.text = "\(timeString(time: TimeInterval(sender.value)))"
             
             if metricMeasure {
-                
-                // FUNCTION NEEDS FIXING
-                
-                let time = raceInfo.distance / (raceInfo.distance / sender.value)
-                uiSlider.value = time
-                
-                print(time)
+                let speed = sender.value / (raceInfo.distance / 1000)
                 topLabel.text = "\(paceString(time: TimeInterval(speed))) /km"
+                
             } else {
                 let speed = sender.value / (raceInfo.distance / 1609)
-                uiSlider.value = speed
-                
-                print(speed)
                 topLabel.text = "\(paceString(time: TimeInterval(speed))) /mile"
             }
         }
     }
+    
     
     // Send data to splits view
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -286,7 +276,17 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
             // Distance data
             splitsVC?.distance = raceInfo.distance
             // Pace data
-            //            splitsVC?.pace = paceSlider.value
+            
+            if calculateTime {
+                splitsVC?.pace = uiSlider.value
+            } else {
+                switch metricMeasure {
+                case true:
+                    splitsVC?.pace = uiSlider.value / (raceInfo.distance / 1000)
+                default:
+                    splitsVC?.pace = uiSlider.value / (raceInfo.distance / 1609)
+                }
+            }
             // Metric or Imperial data
             splitsVC?.metricMeasure = metricMeasure
         }
@@ -342,7 +342,8 @@ class CalculatorViewController: UIViewController, UITextFieldDelegate {
                         } else {
                             self.raceInfo.distance = (convertedDistance * 1609)
                         }
-                        //                        self.setValues()
+                        self.formatDistance()
+                        self.sliderChanged(self.uiSlider)
                     }
                 }
             }
